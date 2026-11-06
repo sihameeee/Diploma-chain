@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administration – Université de Béjaïa</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><div class="wrap"><img src="logo.png" alt="Université de Béjaïa – Tasdawit n Bgayet"><div class="who" id="who"><a class="btn ghost" href="index.html">Page publique</a></div></div></header>
+<main class="wrap" id="app"></main>
+<footer>Université de Béjaïa · Espace administration</footer>
+<script src="/vendor/ethers.js"></script><script src="common.js"></script>
+<script>
+const app = $("#app");
+let me = null;
+
+function loginView() {
+  $("#who").replaceChildren(h("a", { href: "index.html", textContent: "Page publique" }));
+  app.innerHTML = `<form class="card login"><h2>Connexion du personnel</h2>
+    <label for="u">Identifiant</label><input type="text" id="u" autocomplete="username" required>
+    <label for="p">Mot de passe</label><input type="password" id="p" autocomplete="current-password" required>
+    <p><button class="btn" type="submit">Se connecter</button></p><div id="err" aria-live="polite"></div></form>`;
+  $("form").onsubmit = async (ev) => {
+    ev.preventDefault();
+    try {
+      const r = await api("/api/login", { method: "POST", body: { username: $("#u").value, password: $("#p").value } });
+      sessionStorage.setItem("token", r.token); me = r.user; dash();
+    } catch (e) { show($("#err"), "ko", "Connexion refusée", [e.message]); }
+  };
+}
+
+function dash() {
+  $("#who").replaceChildren(
+    h("span", { textContent: me.username + " (" + (me.role === "admin" ? "administrateur" : "employé") + ")" }),
+    h("button", { className: "btn ghost", textContent: "Déconnexion", onclick: () => { sessionStorage.removeItem("token"); loginView(); } }));
+  const tabs = [["Enregistrer un diplôme", registerPanel], ["Vérifier un diplôme", verifyPanel], ["Diplômes enregistrés", listPanel]];
+  if (me.role === "admin") tabs.push(["Utilisateurs", usersPanel]);
+  const bar = h("div", { className: "tabs", role: "tablist" });
+  const panel = h("div", { className: "card" });
+  const open = (i) => { [...bar.children].forEach((b, j) => b.setAttribute("aria-selected", String(i === j))); tabs[i][1](panel); };
+  tabs.forEach((t, i) => bar.append(h("button", { role: "tab", textContent: t[0], onclick: () => open(i) })));
+  app.replaceChildren(bar, panel); open(0);
+}
+
+function table(heads, rows) {
+  return h("div", { className: "table-wrap" }, h("table", {}, h("thead", {}, h("tr", {}, heads.map((x) => h("th", { textContent: x })))),
+    h("tbody", {}, rows.map((r) => h("tr", {}, r.map((c) => h("td", {}, c)))))));
+}
+async function listPanel(root) {
+  root.replaceChildren(h("h2", { textContent: "Diplômes enregistrés" }));
+  try {
+    const list = await api("/api/diplomas");
+    root.append(list.length ? table(["Identifiant", "Enregistré par", "Date", "Bloc"], list.map((d) => [d.id, d.by, fmt(d.at), String(d.block)])) : h("p", { textContent: "Aucun diplôme enregistré pour le moment." }));
+  } catch (e) { guard(e, root); }
+}
+async function usersPanel(root) {
+  root.innerHTML = `<h2>Ajouter un utilisateur</h2><div class="grid">
+    <div><label for="nu">Identifiant</label><input type="text" id="nu" autocomplete="off"></div>
+    <div><label for="np">Mot de passe (8 car. min.)</label><input type="password" id="np" autocomplete="new-password"></div>
+    <div><label for="nr">Rôle</label><select id="nr"><option value="employee">Employé</option><option value="admin">Administrateur</option></select></div>
+    <button class="btn" id="add">Ajouter</button></div><div id="msg" aria-live="polite"></div><div id="list"></div>`;
+  const load = async () => {
+    try {
+      const us = await api("/api/users");
+      $("#list", root).replaceChildren(table(["Utilisateur", "Rôle", "Créé le", ""], us.map((u) => [u.username, u.role === "admin" ? "Administrateur" : "Employé", fmt(u.createdAt),
+        u.username === me.username ? "" : h("button", { className: "btn danger", textContent: "Supprimer", onclick: async () => {
+          if (!confirm("Supprimer " + u.username + " ?")) return;
+          try { await api("/api/users/" + encodeURIComponent(u.username), { method: "DELETE" }); load(); } catch (e) { show($("#msg", root), "ko", "Suppression impossible", [e.message]); } } })])));
+    } catch (e) { guard(e, root); }
+  };
+  $("#add", root).onclick = async () => {
+    try {
+      await api("/api/users", { method: "POST", body: { username: $("#nu").value, password: $("#np").value, role: $("#nr").value } });
+      show($("#msg", root), "ok", "Utilisateur ajouté", ["Communiquez-lui son identifiant et son mot de passe."]);
+      $("#nu").value = ""; $("#np").value = ""; load();
+    } catch (e) { show($("#msg", root), "ko", "Ajout impossible", [e.message]); }
+  };
+  load();
+}
+function guard(e, root) { if (e.status === 401) loginView(); else root.append(h("p", { textContent: e.message })); }
+
+(async () => {
+  if (sessionStorage.getItem("token")) { try { me = (await api("/api/me")).user; return dash(); } catch { sessionStorage.removeItem("token"); } }
+  loginView();
+})();
+</script>
+</body></html>

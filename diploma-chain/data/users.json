@@ -1,0 +1,14 @@
+[
+  {
+    "username": "admin",
+    "hash": "$2a$10$sIBo5MWnHodTihc193Bzgey1/604J9JmFcCb4aPpzPuq8JHYJ8kjy",
+    "role": "admin",
+    "createdAt": "2026-11-06T17:06:46.976Z"
+  },
+  {
+    "username": "sihame",
+    "hash": "$2a$10$zBF0KhqVN27N7paFk.k/8ObuqhcyRsiR3VwQuv6LEeynvq.4Fu0mC",
+    "role": "employee",
+    "createdAt": "2026-11-06T17:10:20.681Z"
+  }
+]

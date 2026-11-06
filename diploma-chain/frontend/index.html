@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vérification des diplômes – Université de Béjaïa</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="top"><div class="wrap"><img src="logo.png" alt="Université de Béjaïa – Tasdawit n Bgayet"><a class="btn ghost" href="admin.html">Espace administration</a></div></header>
+<div class="hero"><div class="wrap"><h1>Vérifiez l’authenticité d’un diplôme</h1>
+<p>Saisissez l’identifiant du diplôme et ajoutez son fichier PDF. L’empreinte du fichier est comparée à celle enregistrée par l’université sur la blockchain. Le PDF reste sur votre ordinateur.</p></div></div>
+<main class="wrap pull"><div class="card" id="verify"></div></main>
+<footer>Université de Béjaïa · Mini-projet Sécurité Logicielle</footer>
+<script src="/vendor/ethers.js"></script><script src="common.js"></script>
+<script>verifyPanel($("#verify"));</script>
+</body></html>

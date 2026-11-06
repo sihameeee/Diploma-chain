@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/sihame/Downloads/diploma-chain (1)/diploma-chain/contracts/DiplomaRegistry.sol": {
+      "lastModificationDate": 1793984097181,
+      "contentHash": "baeb2025bb2125c5da406ec92f5a4188",
+      "sourceName": "contracts/DiplomaRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "DiplomaRegistry"
+      ]
+    }
+  }
+}
